@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Django ToDo App</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+  <div class="container py-4">
+    <h2 class="text-center mb-4">Django ToDo App</h2>
+
+    <div class="row g-4">
+
+      <!-- LEFT: My Day (Pending) -->
+      <div class="col-lg-7">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <h5 class="mb-1">My Day</h5>
+                <div class="text-muted small">
+                  Total: <strong>{{ total }}</strong> |
+                  Pending: <strong>{{ pending_count }}</strong> |
+                  Done: <strong>{{ done_count }}</strong>
+                </div>
+              </div>
+
+              <form method="POST" action="{% url 'clear_completed' %}">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-secondary"
+                        type="submit"
+                        {% if done_count == 0 %}disabled{% endif %}
+                        onclick="return confirm('Clear all completed tasks?');">
+                  Clear Done
+                </button>
+              </form>
+            </div>
+
+            <!-- Add Task Form -->
+            <form method="POST" class="d-flex gap-2 mb-4">
+              {% csrf_token %}
+              <input type="text" name="title" class="form-control" placeholder="Add a new task..." required>
+              <button type="submit" class="btn btn-primary">Add</button>
+            </form>
+
+            <!-- Pending Tasks -->
+            <div class="list-group">
+              {% for task in tasks %}
+                {% if not task.completed %}
+                  <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                    <div class="fw-medium">{{ task.title }}</div>
+
+                    <div class="d-flex gap-2 align-items-center">
+                      <!-- Mark as Done -->
+                      <form method="POST" action="{% url 'toggle_task' task.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-success" type="submit">
+                          ✓ Mark as Done
+                        </button>
+                      </form>
+
+                      <!-- Delete -->
+                      <form method="POST" action="{% url 'delete_task' task.id %}"
+                            onsubmit="return confirm('Delete this task?');">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-danger" type="submit">
+                          🗑
+                        </button>
+                      </form>
+
+                      <!-- Edit -->
+                      <a class="btn btn-sm btn-primary" href="{% url 'edit_task' task.id %}">
+                        ✎
+                      </a>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+              {% if pending_count == 0 %}
+                <div class="list-group-item text-center text-muted py-4">
+                  No pending tasks 🎉
+                </div>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Completed Tasks -->
+      <div class="col-lg-5">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+
+            <h5 class="mb-3">Completed Tasks</h5>
+
+            <div class="list-group">
+              {% for task in tasks %}
+                {% if task.completed %}
+                  <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                    <div class="text-muted">{{ task.title }}</div>
+
+                    <!-- Mark as Undone -->
+                    <form method="POST" action="{% url 'toggle_task' task.id %}">
+                      {% csrf_token %}
+                      <button class="btn btn-sm btn-danger" type="submit">
+                        ✖ Mark as Undone
+                      </button>
+                    </form>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+              {% if done_count == 0 %}
+                <div class="list-group-item text-center text-muted py-4">
+                  No completed tasks yet.
+                </div>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
