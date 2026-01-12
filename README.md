@@ -19,8 +19,6 @@ A clean and user-based To-Do application built with **Django** and **Bootstrap**
 - WhiteNoise (static files)
 - Gunicorn (production server)
 
-## 📸 Screenshots
-_Add screenshots here_
 
 ## ⚙️ Setup (Local)
 ```bash
